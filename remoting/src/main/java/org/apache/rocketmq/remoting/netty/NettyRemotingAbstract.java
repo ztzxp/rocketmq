@@ -298,8 +298,8 @@ public abstract class NettyRemotingAbstract {
         return () -> {
             Exception exception = null;
             RemotingCommand response;
-
-            try {
+            //zt 处理product发送的消息
+            try {//11:拉取消息 14:获取消费偏移量
                 String remoteAddr = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
                 try {
                     doBeforeRpcHooks(remoteAddr, cmd);

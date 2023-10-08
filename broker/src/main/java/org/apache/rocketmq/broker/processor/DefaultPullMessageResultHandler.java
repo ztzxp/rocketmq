@@ -104,7 +104,7 @@ public class DefaultPullMessageResultHandler implements PullMessageResultHandler
         if (rewriteResult != null) {
             response = rewriteResult;
         }
-
+        //zt 更新broker队列的消费偏移量
         processor.updateBroadcastPulledOffset(requestHeader.getTopic(), requestHeader.getConsumerGroup(),
             requestHeader.getQueueId(), requestHeader, channel, response, getMessageResult.getNextBeginOffset());
         processor.tryCommitOffset(brokerAllowSuspend, requestHeader, getMessageResult.getNextBeginOffset(),

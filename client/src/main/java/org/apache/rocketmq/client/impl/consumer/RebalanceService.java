@@ -31,7 +31,7 @@ public class RebalanceService extends ServiceThread {
     public RebalanceService(MQClientInstance mqClientFactory) {
         this.mqClientFactory = mqClientFactory;
     }
-
+    //zt 消费者-consumer负载均衡
     @Override
     public void run() {
         log.info(this.getServiceName() + " service started");

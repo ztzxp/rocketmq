@@ -225,7 +225,7 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
             throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
         }
     }
-
+    //zt 消费者-从broker查询消费偏移量
     private long fetchConsumeOffsetFromBroker(MessageQueue mq) throws RemotingException, MQBrokerException,
         InterruptedException, MQClientException {
         FindBrokerResult findBrokerResult = this.mQClientFactory.findBrokerAddressInSubscribe(this.mQClientFactory.getBrokerNameFromMessageQueue(mq), MixAll.MASTER_ID, true);

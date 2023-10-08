@@ -312,6 +312,7 @@ public class BrokerController {
         this.sendMessageProcessor = new SendMessageProcessor(this);
         this.replyMessageProcessor = new ReplyMessageProcessor(this);
         this.messageArrivingListener = new NotifyMessageArrivingListener(this.pullRequestHoldService, this.popMessageProcessor, this.notificationProcessor);
+        //zt 消费组发生改变触发该listener
         this.consumerIdsChangeListener = new DefaultConsumerIdsChangeListener(this);
         this.consumerManager = new ConsumerManager(this.consumerIdsChangeListener, this.brokerStatsManager, this.brokerConfig);
         this.producerManager = new ProducerManager(this.brokerStatsManager);
@@ -566,7 +567,7 @@ public class BrokerController {
                 }
             }
         }, initialDelay, period, TimeUnit.MILLISECONDS);
-
+        //zt 消费队列-消费队列消费偏移量持久化
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -696,6 +697,7 @@ public class BrokerController {
             this.updateNamesrvAddr();
             LOG.info("Set user specified name server address: {}", this.brokerConfig.getNamesrvAddr());
             // also auto update namesrv if specify
+            //zt 每两分钟更新一次broker的NameSrvAddr
             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
@@ -740,6 +742,7 @@ public class BrokerController {
 
         if (result) {
             try {
+                //zt 消息存储对象初始化
                 DefaultMessageStore defaultMessageStore = new DefaultMessageStore(this.messageStoreConfig, this.brokerStatsManager, this.messageArrivingListener, this.brokerConfig, topicConfigManager.getTopicConfigTable());
 
                 if (messageStoreConfig.isEnableDLegerCommitLog()) {
@@ -770,13 +773,14 @@ public class BrokerController {
         if (this.brokerConfig.isEnableControllerMode()) {
             this.replicasManager.setFenced(true);
         }
-
+        //zt 注册将消息存储起来时的钩子方法
         if (messageStore != null) {
             registerMessageStoreHook();
             result = result && this.messageStore.load();
         }
 
         if (messageStoreConfig.isTimerWheelEnable()) {
+            //zt 延时消息存储初始化
             result = result && this.timerMessageStore.load();
         }
 
@@ -793,14 +797,19 @@ public class BrokerController {
 
         if (result) {
 
+            //zt 初始化server服务
             initializeRemotingServer();
 
+            //zt 统一初始化要用到的线程池
             initializeResources();
 
+            //zt 给server注册处理器
             registerProcessor();
 
+            //zt 初始化部分定时任务
             initializeScheduledTasks();
 
+            //zt 事务消息broker相关处理初始化方法
             initialTransaction();
 
             initialAcl();
@@ -913,6 +922,7 @@ public class BrokerController {
     private void initialTransaction() {
         this.transactionalMessageService = ServiceProvider.loadClass(TransactionalMessageService.class);
         if (null == this.transactionalMessageService) {
+
             this.transactionalMessageService = new TransactionalMessageServiceImpl(
                     new TransactionalMessageBridge(this, this.getMessageStore()));
             LOG.warn("Load default transaction message hook service: {}",
@@ -1572,10 +1582,12 @@ public class BrokerController {
             this.brokerOuterAPI.start();
         }
 
+        //zt 启动大部分服务
         startBasicService();
 
         if (!isIsolated && !this.messageStoreConfig.isEnableDLegerCommitLog() && !this.messageStoreConfig.isDuplicationEnable()) {
             changeSpecialServiceStatus(this.brokerConfig.getBrokerId() == MixAll.MASTER_ID);
+            //zt 注册broker
             this.registerBrokerAll(true, false, true);
         }
 

@@ -142,7 +142,7 @@ public class EndTransactionProcessor implements NettyRequestProcessor {
                     msgInner.setStoreTimestamp(result.getPrepareMessage().getStoreTimestamp());
                     MessageAccessor.clearProperty(msgInner, MessageConst.PROPERTY_TRANSACTION_PREPARED);
                     RemotingCommand sendResult = sendFinalMessage(msgInner);
-                    if (sendResult.getCode() == ResponseCode.SUCCESS) {
+                    if (sendResult.getCode() == ResponseCode.SUCCESS) {//zt 事务消息-将消息放入真正队列后,删除系统事务队列中的半消息
                         this.brokerController.getTransactionalMessageService().deletePrepareMessage(result.getPrepareMessage());
                     }
                     return sendResult;

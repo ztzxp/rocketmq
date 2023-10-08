@@ -305,7 +305,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
 
         long beginTimeMillis = this.brokerController.getMessageStore().now();
 
-        if (brokerController.getBrokerConfig().isAsyncSendEnable()) {
+        if (brokerController.getBrokerConfig().isAsyncSendEnable()) {//zt 异步保存消息
             CompletableFuture<PutMessageResult> asyncPutMessageFuture;
             if (sendTransactionPrepareMessage) {
                 asyncPutMessageFuture = this.brokerController.getTransactionalMessageService().asyncPrepareMessage(msgInner);
@@ -315,7 +315,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
 
             final int finalQueueIdInt = queueIdInt;
             final MessageExtBrokerInner finalMsgInner = msgInner;
-            asyncPutMessageFuture.thenAcceptAsync(putMessageResult -> {
+            asyncPutMessageFuture.thenAcceptAsync(putMessageResult -> {//zt 异步响应生产者消息发送结果
                 RemotingCommand responseFuture =
                     handlePutMessageResult(putMessageResult, response, request, finalMsgInner, responseHeader, sendMessageContext,
                         ctx, finalQueueIdInt, beginTimeMillis, mappingContext, BrokerMetricsManager.getMessageType(requestHeader));

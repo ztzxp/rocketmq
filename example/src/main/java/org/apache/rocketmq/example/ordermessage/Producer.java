@@ -27,9 +27,14 @@ import org.apache.rocketmq.remoting.common.RemotingHelper;
 import java.util.List;
 
 public class Producer {
+
+    public static final String DEFAULT_NAMESRVADDR = "127.0.0.1:9876";
+
     public static void main(String[] args) throws MQClientException {
         try {
             DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
+            producer.setNamesrvAddr(DEFAULT_NAMESRVADDR);
+            producer.setSendMsgTimeout(300000000);
             producer.start();
 
             String[] tags = new String[] {"TagA", "TagB", "TagC", "TagD", "TagE"};

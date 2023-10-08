@@ -218,9 +218,10 @@ public class DefaultMessageStore implements MessageStore {
         if (messageStoreConfig.isEnableDLegerCommitLog()) {
             this.commitLog = new DLedgerCommitLog(this);
         } else {
+            //zt commitLog初始化
             this.commitLog = new CommitLog(this);
         }
-
+        //zt 消费队列初始化
         this.consumeQueueStore = new ConsumeQueueStore(this, this.messageStoreConfig);
 
         this.flushConsumeQueueService = new FlushConsumeQueueService();
@@ -357,7 +358,7 @@ public class DefaultMessageStore implements MessageStore {
 
         return result;
     }
-
+    //zt broker DefaultMessageStore消息存储线程启动
     /**
      * @throws Exception
      */
@@ -547,7 +548,7 @@ public class DefaultMessageStore implements MessageStore {
 
     @Override
     public CompletableFuture<PutMessageResult> asyncPutMessage(MessageExtBrokerInner msg) {
-
+        //zt 异步保存消息
         for (PutMessageHook putMessageHook : putMessageHookList) {
             PutMessageResult handleResult = putMessageHook.executeBeforePutMessage(msg);
             if (handleResult != null) {
@@ -568,7 +569,7 @@ public class DefaultMessageStore implements MessageStore {
                 return CompletableFuture.completedFuture(new PutMessageResult(PutMessageStatus.MESSAGE_ILLEGAL, null));
             }
         }
-
+        //zt 将消息放入commitLog
         long beginTime = this.getSystemClock().now();
         CompletableFuture<PutMessageResult> putResultFuture = this.commitLog.asyncPutMessage(msg);
 
@@ -2093,7 +2094,7 @@ public class DefaultMessageStore implements MessageStore {
                 brokerConfig.getBrokerId(), brokerConfig.isInBrokerContainer());
         }
     }
-
+    //zt consumeQueue构建
     class CommitLogDispatcherBuildConsumeQueue implements CommitLogDispatcher {
 
         @Override
@@ -2110,7 +2111,7 @@ public class DefaultMessageStore implements MessageStore {
             }
         }
     }
-
+    //zt indexFile构建
     class CommitLogDispatcherBuildIndex implements CommitLogDispatcher {
 
         @Override
@@ -2565,7 +2566,7 @@ public class DefaultMessageStore implements MessageStore {
             return CorrectLogicOffsetService.class.getSimpleName();
         }
     }
-
+    //zt ConsumeQueue持久化
     class FlushConsumeQueueService extends ServiceThread {
         private static final int RETRY_TIMES_OVER = 3;
         private long lastFlushTimestamp = 0;
@@ -2710,7 +2711,7 @@ public class DefaultMessageStore implements MessageStore {
         }
 
     }
-
+    //zt indexFile、consumeQueue消息存储
     class ReputMessageService extends ServiceThread {
 
         protected volatile long reputFromOffset = 0;
@@ -2749,12 +2750,12 @@ public class DefaultMessageStore implements MessageStore {
             return this.reputFromOffset < DefaultMessageStore.this.getConfirmOffset();
         }
 
-        public void doReput() {
+            public void doReput() {
             if (this.reputFromOffset < DefaultMessageStore.this.commitLog.getMinOffset()) {
                 LOGGER.warn("The reputFromOffset={} is smaller than minPyOffset={}, this usually indicate that the dispatch behind too much and the commitlog has expired.",
                     this.reputFromOffset, DefaultMessageStore.this.commitLog.getMinOffset());
                 this.reputFromOffset = DefaultMessageStore.this.commitLog.getMinOffset();
-            }
+            }//zt consumerQueue判断消费队列的偏移量是否小于commitLog的偏移量，小于则说明还有消息需要写入consumerQueue
             for (boolean doNext = true; this.isCommitLogAvailable() && doNext; ) {
 
                 SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
@@ -2853,7 +2854,7 @@ public class DefaultMessageStore implements MessageStore {
                     dispatchRequest.getStoreTimestamp(), dispatchRequest.getBitMap(), dispatchRequest.getPropertiesMap());
             }
         }
-
+        //zt IndexFile、 消息存储
         @Override
         public void run() {
             DefaultMessageStore.LOGGER.info(this.getServiceName() + " service started");

@@ -180,7 +180,7 @@ public abstract class AbstractSendMessageProcessor implements NettyRequestProces
         boolean isDLQ = false;
         if (msgExt.getReconsumeTimes() >= maxReconsumeTimes
             || delayLevel < 0) {
-
+            //zt 死信队列-如果消息消费重试次数超过最大重试次数或者delayLevel为-1（不重试），则将消息投放的topic设置为死信队列的topic，将消息放入死信队列
             Attributes attributes = BrokerMetricsManager.newAttributesBuilder()
                 .put(LABEL_CONSUMER_GROUP, requestHeader.getGroup())
                 .put(LABEL_TOPIC, requestHeader.getOriginTopic())

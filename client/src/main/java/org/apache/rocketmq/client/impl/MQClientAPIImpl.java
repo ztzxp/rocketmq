@@ -600,6 +600,7 @@ public class MQClientAPIImpl implements NameServerUpdateCallback {
                 if (timeoutMillis < costTimeSync) {
                     throw new RemotingTooMuchRequestException("sendMessage call timeout");
                 }
+                //zt 发送消息
                 return this.sendMessageSync(addr, brokerName, msg, timeoutMillis - costTimeSync, request);
             default:
                 assert false;
@@ -618,6 +619,7 @@ public class MQClientAPIImpl implements NameServerUpdateCallback {
     ) throws RemotingException, MQBrokerException, InterruptedException {
         RemotingCommand response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
         assert response != null;
+        //zt 处理消息发送返回结果
         return this.processSendResponse(brokerName, msg, response, addr);
     }
 

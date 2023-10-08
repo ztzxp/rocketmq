@@ -1305,6 +1305,7 @@ public class CommitLog implements Swappable {
 
         @Override
         public void run() {
+            //zt 提交CommitLog
             CommitLog.log.info(this.getServiceName() + " service started");
             while (!this.isStopped()) {
                 int interval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getCommitIntervalCommitLog();
@@ -1352,6 +1353,7 @@ public class CommitLog implements Swappable {
 
         @Override
         public void run() {
+            //zt 消息刷盘
             CommitLog.log.info(this.getServiceName() + " service started");
 
             while (!this.isStopped()) {
@@ -1693,7 +1695,7 @@ public class CommitLog implements Swappable {
             this.msgStoreItemMemory = ByteBuffer.allocate(END_FILE_MIN_BLANK_LENGTH);
         }
 
-        public AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer, final int maxBlank,
+        public AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer, final int  maxBlank,
             final MessageExtBrokerInner msgInner, PutMessageContext putMessageContext) {
             // STORETIMESTAMP + STOREHOSTADDRESS + OFFSET <br>
 
@@ -1919,7 +1921,7 @@ public class CommitLog implements Swappable {
                 }
             }
         }
-
+        //zt 判断同步刷盘还是异步刷盘
         @Override
         public CompletableFuture<PutMessageStatus> handleDiskFlush(AppendMessageResult result, MessageExt messageExt) {
             // Synchronization flush

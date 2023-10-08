@@ -69,8 +69,7 @@ public class ClientRemotingProcessor implements NettyRequestProcessor {
     public RemotingCommand processRequest(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         switch (request.getCode()) {
-            case RequestCode.CHECK_TRANSACTION_STATE:
-                return this.checkTransactionState(ctx, request);
+            case RequestCode.CHECK_TRANSACTION_STATE: return this.checkTransactionState(ctx, request);
             case RequestCode.NOTIFY_CONSUMER_IDS_CHANGED:
                 return this.notifyConsumerIdsChanged(ctx, request);
             case RequestCode.RESET_CONSUMER_CLIENT_OFFSET:

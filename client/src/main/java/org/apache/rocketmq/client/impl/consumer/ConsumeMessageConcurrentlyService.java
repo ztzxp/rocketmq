@@ -354,7 +354,7 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
             }
         }, 5000, TimeUnit.MILLISECONDS);
     }
-
+    //zt 消费者-消费请求
     class ConsumeRequest implements Runnable {
         private final List<MessageExt> msgs;
         private final ProcessQueue processQueue;
@@ -407,7 +407,7 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
                     for (MessageExt msg : msgs) {
                         MessageAccessor.setConsumeStartTimeStamp(msg, String.valueOf(System.currentTimeMillis()));
                     }
-                }
+                }//zt 消费者-消息消费
                 status = listener.consumeMessage(Collections.unmodifiableList(msgs), context);
             } catch (Throwable e) {
                 log.warn(String.format("consumeMessage exception: %s Group: %s Msgs: %s MQ: %s",

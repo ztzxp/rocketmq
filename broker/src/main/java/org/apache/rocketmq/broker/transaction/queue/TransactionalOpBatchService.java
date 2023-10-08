@@ -44,6 +44,7 @@ public class TransactionalOpBatchService extends ServiceThread {
 
     @Override
     public void run() {
+        //zt 事务消息-单独线程将事务消息放入commitLog文件中
         LOGGER.info("Start transaction op batch thread!");
         long checkInterval = brokerController.getBrokerConfig().getTransactionOpBatchInterval();
         wakeupTimestamp = System.currentTimeMillis() + checkInterval;

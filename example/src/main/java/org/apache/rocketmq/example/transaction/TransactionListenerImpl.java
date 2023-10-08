@@ -34,11 +34,13 @@ public class TransactionListenerImpl implements TransactionListener {
         int value = transactionIndex.getAndIncrement();
         int status = value % 3;
         localTrans.put(msg.getTransactionId(), status);
+        System.out.println("事务执行");
         return LocalTransactionState.UNKNOW;
     }
 
     @Override
     public LocalTransactionState checkLocalTransaction(MessageExt msg) {
+        System.out.println("事务校验");
         Integer status = localTrans.get(msg.getTransactionId());
         if (null != status) {
             switch (status) {

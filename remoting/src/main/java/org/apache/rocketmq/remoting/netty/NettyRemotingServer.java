@@ -179,6 +179,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
 
     @Override
     public void start() {
+        //zt brocker服务端创建
         this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(nettyServerConfig.getServerWorkerThreads(),
             new ThreadFactoryImpl("NettyServerCodecThread_"));
 

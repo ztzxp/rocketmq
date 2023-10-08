@@ -125,7 +125,7 @@ public class HookUtils {
 
         return null;
     }
-
+    //zt 保存消息前校验是否是延迟消息钩子函数
     public static PutMessageResult handleScheduleMessage(BrokerController brokerController,
         final MessageExtBrokerInner msg) {
         final int tranType = MessageSysFlag.getTransactionValue(msg.getSysFlag());

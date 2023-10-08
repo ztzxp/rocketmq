@@ -304,7 +304,7 @@ public class MQClientInstance {
                 log.error("ScheduledTask sendHeartbeatToAllBroker exception", e);
             }
         }, 1000, this.clientConfig.getHeartbeatBrokerInterval(), TimeUnit.MILLISECONDS);
-
+        //zt DefaultMQPullConsumer更新offset到broker
         this.scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 MQClientInstance.this.persistAllConsumerOffset();

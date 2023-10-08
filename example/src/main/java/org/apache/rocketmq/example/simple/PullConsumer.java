@@ -52,7 +52,7 @@ public class PullConsumer {
 
                 public void doSomething(List<MessageExt> msgs) {
                     //do your business
-
+                    msgs.forEach(e -> System.out.println(e));
                 }
 
                 @Override

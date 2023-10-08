@@ -39,7 +39,7 @@ public class PullMessageService extends ServiceThread {
     public PullMessageService(MQClientInstance mQClientFactory) {
         this.mQClientFactory = mQClientFactory;
     }
-
+    //zt 消费者-定时任务往messageRequestQueue中放入拉取请求
     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
         if (!isStopped()) {
             this.scheduledExecutorService.schedule(new Runnable() {
@@ -117,7 +117,7 @@ public class PullMessageService extends ServiceThread {
     @Override
     public void run() {
         logger.info(this.getServiceName() + " service started");
-
+        //zt 消费者-拉取消息
         while (!this.isStopped()) {
             try {
                 MessageRequest messageRequest = this.messageRequestQueue.take();

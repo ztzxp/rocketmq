@@ -277,7 +277,7 @@ public class TimerMessageStore {
         //the timer wheel may contain physical offset bigger than timerLog
         //This will only happen when the timerLog is damaged
         //hard to test
-        long minFirst = timerWheel.checkPhyPos(currReadTimeMs, processOffset);
+         long minFirst = timerWheel.checkPhyPos(currReadTimeMs, processOffset);
         if (debug) {
             minFirst = 0;
         }
@@ -418,7 +418,7 @@ public class TimerMessageStore {
     public static boolean isMagicOK(int magic) {
         return (magic | 0xF) == 0xF;
     }
-
+    //zt 延迟消息-存储线程启动
     public void start() {
         this.shouldStartTime = storeConfig.getDisappearTimeAfterStart() + System.currentTimeMillis();
         maybeMoveWriteTime();
@@ -609,7 +609,7 @@ public class TimerMessageStore {
         }
         if (!isRunningEnqueue()) {
             return false;
-        }
+        }//zt 延迟消息-获取到系统延迟队列的消费队列consumerQueue
         ConsumeQueue cq = (ConsumeQueue) this.messageStore.getConsumeQueue(TIMER_TOPIC, queueId);
         if (null == cq) {
             return false;
@@ -618,7 +618,7 @@ public class TimerMessageStore {
             LOGGER.warn("Timer currQueueOffset:{} is smaller than minOffsetInQueue:{}", currQueueOffset, cq.getMinOffsetInQueue());
             currQueueOffset = cq.getMinOffsetInQueue();
         }
-        long offset = currQueueOffset;
+        long offset = currQueueOffset;//zt 延迟消息-从consumerQueue中获取到下一条该消费的消息
         SelectMappedBufferResult bufferCQ = cq.getIndexBuffer(offset);
         if (null == bufferCQ) {
             return false;
@@ -631,7 +631,7 @@ public class TimerMessageStore {
                     long offsetPy = bufferCQ.getByteBuffer().getLong();
                     int sizePy = bufferCQ.getByteBuffer().getInt();
                     bufferCQ.getByteBuffer().getLong(); //tags code
-                    MessageExt msgExt = getMessageByCommitOffset(offsetPy, sizePy);
+                    MessageExt msgExt = getMessageByCommitOffset(offsetPy, sizePy);//zt 延迟消息-根据消费队列中存储的CommitLog文件消息偏移量和消息大小从CommitLog文件中获取到消息
                     if (null == msgExt) {
                         perfs.getCounter("enqueue_get_miss");
                     } else {
@@ -1093,7 +1093,7 @@ public class TimerMessageStore {
         msgInner.setReconsumeTimes(msgExt.getReconsumeTimes());
 
         msgInner.setWaitStoreMsgOK(false);
-
+        //zt 判断延时消息是否到期,未到期则topic还是rmq_sys_wheel_timer,到期则放入真实的topic
         if (needRoll) {
             msgInner.setTopic(msgExt.getTopic());
             msgInner.setQueueId(msgExt.getQueueId());
@@ -1236,7 +1236,7 @@ public class TimerMessageStore {
         }
 
     }
-
+    //zt负责从系统定时 Topic 里面拉取消息放入 enqueuePutQueue 等待 TimerEnqueuePutService 的处理
     class TimerEnqueueGetService extends ServiceThread {
 
         @Override public String getServiceName() {
@@ -1262,7 +1262,7 @@ public class TimerMessageStore {
             TimerMessageStore.LOGGER.info(this.getServiceName() + " service end");
         }
     }
-
+    //zt 负责构建 TimerLog 记录，并将其放入时间轮的对应的刻度中
     class TimerEnqueuePutService extends ServiceThread {
 
         @Override public String getServiceName() {
@@ -1310,7 +1310,7 @@ public class TimerMessageStore {
                                 DefaultStoreMetricsManager.incTimerEnqueueCount(getRealTopic(req.getMsg()));
                                 if (shouldRunningDequeue && req.getDelayTime() < currWriteTimeMs) {
                                     dequeuePutQueue.put(req);
-                                } else {
+                                } else {//zt 延迟队列-将TimerRequest放入时间轮
                                     boolean doEnqueueRes = doEnqueue(req.getOffsetPy(), req.getSizePy(), req.getDelayTime(), req.getMsg());
                                     req.idempotentRelease(doEnqueueRes || storeConfig.isTimerSkipUnknownError());
                                 }
@@ -1344,7 +1344,7 @@ public class TimerMessageStore {
             TimerMessageStore.LOGGER.info(this.getServiceName() + " service end");
         }
     }
-
+    //zt 负责转动时间轮，并取出当前时间刻度的所有 TimerLog 记录放入 dequeueGetQueue
     class TimerDequeueGetService extends ServiceThread {
 
         @Override public String getServiceName() {
@@ -1388,7 +1388,7 @@ public class TimerMessageStore {
             return this.state == state;
         }
     }
-
+    //zt 负责判断队列中的消息是否已经到期，如果已经到期了，那么将其投入用户的 Topic 中
     class TimerDequeuePutMessageService extends AbstractStateService {
 
         @Override public String getServiceName() {
@@ -1457,7 +1457,7 @@ public class TimerMessageStore {
             setState(AbstractStateService.END);
         }
     }
-
+    //zt 负责根据 TimerLog 记录，从 CommitLog 中读取消息
     class TimerDequeueGetMessageService extends AbstractStateService {
 
         @Override public String getServiceName() {
@@ -1574,7 +1574,7 @@ public class TimerMessageStore {
     public boolean needDelete(int magic) {
         return (magic & MAGIC_DELETE) != 0;
     }
-
+    //zt 延迟消息-延迟消息刷盘
     class TimerFlushService extends ServiceThread {
         private final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd HH:mm:ss");
 

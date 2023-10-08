@@ -287,7 +287,7 @@ public class TransactionalMessageServiceImpl implements TransactionalMessageServ
                             log.info("Check transaction. real_topic={},uniqKey={},offset={},commitLogOffset={}",
                                     msgExt.getUserProperty(MessageConst.PROPERTY_REAL_TOPIC),
                                     msgExt.getUserProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX),
-                                    msgExt.getQueueOffset(), msgExt.getCommitLogOffset());
+                                    msgExt.getQueueOffset(), msgExt.getCommitLogOffset());//zt 事务消息-事务回查
                             listener.resolveHalfMsg(msgExt);
                         } else {
                             nextOpOffset = pullResult != null ? pullResult.getNextBeginOffset() : nextOpOffset;
